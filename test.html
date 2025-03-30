@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chẩn đoán bệnh não</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .preview-container img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        .summary {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chẩn đoán bệnh não từ ảnh</h1>
+    <div class="container">
+        <input type="file" id="imageInput" accept="image/*" multiple>
+        <div class="preview-container" id="previewContainer"></div>
+        <button onclick="uploadImages()">Chẩn đoán</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Hiển thị ảnh xem trước
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const previewContainer = document.getElementById('previewContainer');
+            previewContainer.innerHTML = '';
+            const files = Array.from(event.target.files);
+
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // Gửi ảnh và nhận kết quả từ API
+        function uploadImages() {
+            const files = document.getElementById('imageInput').files;
+            if (files.length === 0) {
+                alert("Vui lòng chọn ít nhất một ảnh!");
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append("images", file);
+            });
+
+            fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Dữ liệu nhận được:", data); // Debug dữ liệu nhận được
+                let resultText = "<h3>Kết quả chẩn đoán</h3>";
+
+                // Hiển thị kết quả từng ảnh
+                if (data.results && Array.isArray(data.results)) {
+                    resultText += "<p><strong>Kết quả từng ảnh:</strong></p>";
+                    resultText += "<ul>";
+                    data.results.forEach((res, index) => {
+                        resultText += `<li>Ảnh ${index + 1}: ${res.diagnosis} (Xác suất: ${(res.confidence * 100).toFixed(2)}%)</li>`;
+                    });
+                    resultText += "</ul>";
+                } else {
+                    resultText += "<p>Không có kết quả dự đoán cho ảnh.</p>";
+                }
+
+                // Hiển thị summary
+                if (data.summary) {
+                    resultText += `<div class="summary">`;
+                    resultText += `<p><strong>${data.summary.text}:</strong> ${data.summary.total}</p>`;
+
+                    if (data.summary.details) {
+                        if (typeof data.summary.details === "string") {
+                            resultText += `<p>${data.summary.details}</p>`;
+                        } else {
+                            resultText += `<p><strong>Chi tiết:</strong></p>`;
+                            resultText += `<ul>`;
+                            if (data.summary.details.disease_counts) {
+                                for (let [disease, count] of Object.entries(data.summary.details.disease_counts)) {
+                                    if (count > 0 && disease !== 'notumor') {
+                                        resultText += `<li>${disease}: ${count} ảnh</li>`;
+                                    }
+                                }
+                            }
+                            if (data.summary.details.detected_diseases) {
+                                resultText += `<li>Các bệnh phát hiện: ${data.summary.details.detected_diseases.join(", ")}</li>`;
+                            }
+                            resultText += `</ul>`;
+                        }
+                    }
+                    resultText += `</div>`;
+                }
+
+                document.getElementById("result").innerHTML = resultText;
+            })
+            .catch(error => {
+                console.error("Lỗi:", error); // Debug lỗi
+                document.getElementById("result").innerHTML = `<p style="color: red;">Lỗi khi chẩn đoán: ${error.message}. Vui lòng thử lại.</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
