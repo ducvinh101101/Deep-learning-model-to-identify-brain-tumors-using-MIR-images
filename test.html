@@ -6,175 +6,195 @@
     <title>Chẩn đoán bệnh não từ ảnh</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
-        }
+    body {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f7fa;
+        color: #333;
+    }
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e7ff;
+    }
+    h1 {
+        color: #005670;
+        font-size: 28px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    h1 i {
+        color: #007bff;
+    }
+    input[type="file"] {
+        display: block;
+        margin: 20px auto;
+        padding: 12px;
+        border: 2px solid #d0e1ff;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 500px;
+        background-color: #f8fbff;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+    input[type="file"]:hover {
+        border-color: #007bff;
+    }
+    .preview-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Tăng minmax để ảnh rộng hơn */
+        gap: 50px; /* Tăng gap từ 15px lên 25px để giãn khoảng cách */
+        margin: 50px 0;
+        justify-items: center;
+    }
+    .image-wrapper {
+        position: relative;
+        width: 120px; /* Tăng từ 100px lên 120px */
+        height: 120px; /* Tăng từ 100px lên 120px */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 2px solid #e0e7ff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+    .image-wrapper img:hover {
+        transform: scale(1.05);
+    }
+    .image-number {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        background-color: #007bff;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .image-result {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #005670;
+        text-align: center;
+        background-color: #f8fbff;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #d0e1ff;
+        width: 100%;
+        word-wrap: break-word;
+    }
+    #result {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8fbff;
+        border: 1px solid #d0e1ff;
+        border-radius: 10px;
+        text-align: left;
+        font-size: 16px;
+    }
+    #result h3 {
+        color: #005670;
+        margin-top: 0;
+        font-size: 20px;
+    }
+    .summary {
+        background-color: #e6f3ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border: 1px solid #b3d4ff;
+    }
+    .summary strong {
+        color: #005670;
+    }
+    button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 30px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        margin: 20px auto;
+    }
+    button:hover {
+        background-color: #005670;
+        transform: translateY(-2px);
+    }
+    button i {
+        font-size: 18px;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 10px 0;
+    }
+    li {
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e7ff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    li i {
+        color: #007bff;
+    }
+    li:last-child {
+        border-bottom: none;
+    }
+    @media (max-width: 600px) {
         .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 30px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e0e7ff;
-        }
-        h1 {
-            color: #005670;
-            font-size: 28px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        h1 i {
-            color: #007bff;
+            padding: 15px;
         }
         input[type="file"] {
-            display: block;
-            margin: 20px auto;
-            padding: 12px;
-            border: 2px solid #d0e1ff;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 500px;
-            background-color: #f8fbff;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-        input[type="file"]:hover {
-            border-color: #007bff;
+            width: 90%;
         }
         .preview-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            justify-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Giảm minmax cho màn nhỏ */
+            gap: 20px; /* Giảm gap nhẹ cho màn nhỏ */
         }
         .image-wrapper {
-            position: relative;
-            width: 100px;
+            width: 100px; /* Giảm kích thước cho màn nhỏ */
             height: 100px;
         }
-        .image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border: 2px solid #e0e7ff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-        .image-wrapper img:hover {
-            transform: scale(1.05);
-        }
         .image-number {
-            position: absolute;
-            top: -8px;
-            left: -8px;
-            background-color: #007bff;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
-            text-align: center;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            font-size: 12px;
+            top: -6px;
+            left: -6px;
         }
-        #result {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f8fbff;
-            border: 1px solid #d0e1ff;
-            border-radius: 10px;
-            text-align: left;
-            font-size: 16px;
+        .image-result {
+            font-size: 10px;
+            padding: 3px;
         }
-        #result h3 {
-            color: #005670;
-            margin-top: 0;
-            font-size: 20px;
-        }
-        .summary {
-            background-color: #e6f3ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            border: 1px solid #b3d4ff;
-        }
-        .summary strong {
-            color: #005670;
-        }
-        button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin: 20px auto;
-        }
-        button:hover {
-            background-color: #005670;
-            transform: translateY(-2px);
-        }
-        button i {
-            font-size: 18px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 10px 0;
-        }
-        li {
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e7ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        li i {
-            color: #007bff;
-        }
-        li:last-child {
-            border-bottom: none;
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            input[type="file"] {
-                width: 90%;
-            }
-            .preview-container {
-                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            }
-            .image-wrapper {
-                width: 80px;
-                height: 80px;
-            }
-            .image-number {
-                width: 20px;
-                height: 20px;
-                line-height: 20px;
-                font-size: 12px;
-                top: -6px;
-                left: -6px;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="container">
@@ -224,11 +244,17 @@
                     number.className = 'image-number';
                     number.textContent = index + 1;
 
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'image-result';
+                    resultDiv.textContent = 'Chưa chẩn đoán';
+
                     wrapper.appendChild(number);
                     wrapper.appendChild(img);
+                    wrapper.appendChild(resultDiv);
                     previewContainer.appendChild(wrapper);
                 });
         });
+
         async function login() {
             const response = await fetch("http://127.0.0.1:8000/api/login", {
                 method: "POST",
@@ -243,6 +269,7 @@
             const data = await response.json();
             localStorage.setItem('token', data.token);
         }
+
         async function uploadImages() {
             const files = document.getElementById('imageInput').files;
             if (files.length === 0) {
@@ -261,11 +288,11 @@
             });
 
             fetch("http://127.0.0.1:8000/api/predict", {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
             })
             .then(response => {
                 if (!response.ok) {
@@ -277,7 +304,16 @@
                 console.log("Dữ liệu nhận được:", data);
                 let resultText = "<h3><i class='fa-solid fa-stethoscope'></i> Kết quả chẩn đoán</h3>";
 
+                // Cập nhật kết quả ngay dưới mỗi ảnh
                 if (data.results && Array.isArray(data.results)) {
+                    const wrappers = document.querySelectorAll('.image-wrapper');
+                    data.results.forEach((res, index) => {
+                        if (wrappers[index]) {
+                            const resultDiv = wrappers[index].querySelector('.image-result');
+                            resultDiv.textContent = `${res.diagnosis} (${(res.confidence * 100).toFixed(2)}%)`;
+                        }
+                    });
+
                     resultText += "<p><strong>Kết quả từng ảnh:</strong></p>";
                     resultText += "<ul>";
                     data.results.forEach((res, index) => {
@@ -319,8 +355,14 @@
             .catch(error => {
                 console.error("Lỗi:", error);
                 document.getElementById("result").innerHTML = `<p style="color: #dc3545;"><i class="fa-solid fa-exclamation-triangle"></i> Lỗi khi chẩn đoán: ${error.message}. Vui lòng thử lại.</p>`;
+                const wrappers = document.querySelectorAll('.image-wrapper');
+                wrappers.forEach(wrapper => {
+                    const resultDiv = wrapper.querySelector('.image-result');
+                    resultDiv.textContent = 'Lỗi chẩn đoán';
+                });
             });
         }
+
         window.onload = login;
     </script>
 </body>
