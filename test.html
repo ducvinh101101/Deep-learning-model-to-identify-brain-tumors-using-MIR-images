@@ -3,108 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chẩn đoán bệnh não</title>
+    <title>Chẩn đoán bệnh não từ ảnh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-            background-color: #f4f4f4;
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
         }
         .container {
-            width: 60%;
+            max-width: 1000px;
             margin: auto;
-            padding: 20px;
-            border: 2px dashed #ccc;
+            padding: 30px;
+            background-color: #ffffff;
             border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e7ff;
+        }
+        h1 {
+            color: #005670;
+            font-size: 28px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        h1 i {
+            color: #007bff;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            padding: 12px;
+            border: 2px solid #d0e1ff;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            background-color: #f8fbff;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="file"]:hover {
+            border-color: #007bff;
         }
         .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            justify-items: center;
         }
-        .preview-container img {
+        .image-wrapper {
+            position: relative;
             width: 100px;
             height: 100px;
+        }
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .image-wrapper img:hover {
+            transform: scale(1.05);
+        }
+        .image-number {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         #result {
-            margin-top: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8fbff;
+            border: 1px solid #d0e1ff;
+            border-radius: 10px;
             text-align: left;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 5px;
+            font-size: 16px;
+        }
+        #result h3 {
+            color: #005670;
+            margin-top: 0;
+            font-size: 20px;
         }
         .summary {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
+            background-color: #e6f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #b3d4ff;
+        }
+        .summary strong {
+            color: #005670;
         }
         button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 30px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 20px auto;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #005670;
+            transform: translateY(-2px);
+        }
+        button i {
+            font-size: 18px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e7ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        li i {
+            color: #007bff;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            input[type="file"] {
+                width: 90%;
+            }
+            .preview-container {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+            .image-wrapper {
+                width: 80px;
+                height: 80px;
+            }
+            .image-number {
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                font-size: 12px;
+                top: -6px;
+                left: -6px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Chẩn đoán bệnh não từ ảnh</h1>
     <div class="container">
+        <h1><i class="fa-solid fa-brain"></i> Chẩn đoán bệnh não từ ảnh</h1>
         <input type="file" id="imageInput" accept="image/*" multiple>
         <div class="preview-container" id="previewContainer"></div>
-        <button onclick="uploadImages()">Chẩn đoán</button>
+        <button onclick="uploadImages()"><i class="fa-solid fa-diagnoses"></i> Chẩn đoán</button>
         <div id="result"></div>
     </div>
 
     <script>
-        // Hiển thị ảnh xem trước
-        document.getElementById('imageInput').addEventListener('change', function(event) {
+        document.getElementById('imageInput').addEventListener('change', async function(event) {
             const previewContainer = document.getElementById('previewContainer');
             previewContainer.innerHTML = '';
             const files = Array.from(event.target.files);
 
-            files.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        previewContainer.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                }
+            // Tạo danh sách promise để đọc file theo thứ tự
+            const promises = files.map((file, index) => {
+                return new Promise((resolve) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            resolve({ src: e.target.result, index });
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        resolve(null);
+                    }
+                });
             });
-        });
 
-        // Gửi ảnh và nhận kết quả từ API
-        function uploadImages() {
+            // Chờ tất cả promise hoàn thành
+            const results = await Promise.all(promises);
+
+            // Lọc các kết quả hợp lệ và hiển thị theo thứ tự
+            results
+                .filter(result => result !== null)
+                .sort((a, b) => a.index - b.index) // Sắp xếp theo index
+                .forEach(({ src, index }) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'image-wrapper';
+
+                    const img = document.createElement('img');
+                    img.src = src;
+
+                    const number = document.createElement('span');
+                    number.className = 'image-number';
+                    number.textContent = index + 1;
+
+                    wrapper.appendChild(number);
+                    wrapper.appendChild(img);
+                    previewContainer.appendChild(wrapper);
+                });
+        });
+        async function login() {
+            const response = await fetch("http://127.0.0.1:8000/api/login", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: "admin", password: "123456" })
+            });
+
+            if (!response.ok) {
+                alert("Đăng nhập thất bại!");
+                return;
+            }
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+        }
+        async function uploadImages() {
             const files = document.getElementById('imageInput').files;
             if (files.length === 0) {
                 alert("Vui lòng chọn ít nhất một ảnh!");
                 return;
             }
-
+            let token = localStorage.getItem('token');
+            if (!token) {
+                await login();
+                token = localStorage.getItem('token');
+                if (!token) return;
+            }
             const formData = new FormData();
             Array.from(files).forEach(file => {
                 formData.append("images", file);
             });
 
-            fetch("http://127.0.0.1:5000/predict", {
-                method: "POST",
-                body: formData
+            fetch("http://127.0.0.1:8000/api/predict", {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
             })
             .then(response => {
                 if (!response.ok) {
@@ -113,41 +274,39 @@
                 return response.json();
             })
             .then(data => {
-                console.log("Dữ liệu nhận được:", data); // Debug dữ liệu nhận được
-                let resultText = "<h3>Kết quả chẩn đoán</h3>";
+                console.log("Dữ liệu nhận được:", data);
+                let resultText = "<h3><i class='fa-solid fa-stethoscope'></i> Kết quả chẩn đoán</h3>";
 
-                // Hiển thị kết quả từng ảnh
                 if (data.results && Array.isArray(data.results)) {
                     resultText += "<p><strong>Kết quả từng ảnh:</strong></p>";
                     resultText += "<ul>";
                     data.results.forEach((res, index) => {
-                        resultText += `<li>Ảnh ${index + 1}: ${res.diagnosis} (Xác suất: ${(res.confidence * 100).toFixed(2)}%)</li>`;
+                        resultText += `<li><i class="fa-solid fa-image"></i> Ảnh ${index + 1}: ${res.diagnosis} (Xác suất: ${(res.confidence * 100).toFixed(2)}%)</li>`;
                     });
                     resultText += "</ul>";
                 } else {
-                    resultText += "<p>Không có kết quả dự đoán cho ảnh.</p>";
+                    resultText += "<p><i class='fa-solid fa-exclamation-circle'></i> Không có kết quả dự đoán cho ảnh.</p>";
                 }
 
-                // Hiển thị summary
                 if (data.summary) {
                     resultText += `<div class="summary">`;
                     resultText += `<p><strong>${data.summary.text}:</strong> ${data.summary.total}</p>`;
 
                     if (data.summary.details) {
                         if (typeof data.summary.details === "string") {
-                            resultText += `<p>${data.summary.details}</p>`;
+                            resultText += `<p><i class="fa-solid fa-info-circle"></i> ${data.summary.details}</p>`;
                         } else {
                             resultText += `<p><strong>Chi tiết:</strong></p>`;
                             resultText += `<ul>`;
                             if (data.summary.details.disease_counts) {
                                 for (let [disease, count] of Object.entries(data.summary.details.disease_counts)) {
                                     if (count > 0 && disease !== 'notumor') {
-                                        resultText += `<li>${disease}: ${count} ảnh</li>`;
+                                        resultText += `<li><i class="fa-solid fa-chart-line"></i> ${disease}: ${count} ảnh</li>`;
                                     }
                                 }
                             }
                             if (data.summary.details.detected_diseases) {
-                                resultText += `<li>Các bệnh phát hiện: ${data.summary.details.detected_diseases.join(", ")}</li>`;
+                                resultText += `<li><i class="fa-solid fa-notes-medical"></i> Các bệnh phát hiện: ${data.summary.details.detected_diseases.join(", ")}</li>`;
                             }
                             resultText += `</ul>`;
                         }
@@ -158,10 +317,11 @@
                 document.getElementById("result").innerHTML = resultText;
             })
             .catch(error => {
-                console.error("Lỗi:", error); // Debug lỗi
-                document.getElementById("result").innerHTML = `<p style="color: red;">Lỗi khi chẩn đoán: ${error.message}. Vui lòng thử lại.</p>`;
+                console.error("Lỗi:", error);
+                document.getElementById("result").innerHTML = `<p style="color: #dc3545;"><i class="fa-solid fa-exclamation-triangle"></i> Lỗi khi chẩn đoán: ${error.message}. Vui lòng thử lại.</p>`;
             });
         }
+        window.onload = login;
     </script>
 </body>
 </html>
