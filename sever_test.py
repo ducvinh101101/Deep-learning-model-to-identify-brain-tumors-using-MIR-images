@@ -5,9 +5,19 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 from flask_cors import CORS
+from APIKeyMiddleware import APIKeyMiddleware
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+KEY = os.getenv("API_KEY")
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/predict": {"origins": "*"}})
+# Định nghĩa khóa API hợp lệ
+VALID_API_KEY = KEY
+
+# Áp dụng middleware vào ứng dụng Flask
+app.wsgi_app = APIKeyMiddleware(app.wsgi_app, VALID_API_KEY)
 
 # Load mô hình
 model = load_model("last.h5")
