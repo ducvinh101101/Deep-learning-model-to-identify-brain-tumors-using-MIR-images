@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 import numpy as np
 import io
-import tensorflow as tf
 from tensorflow.keras.models import load_model
 from PIL import Image
 from flask_cors import CORS
 # from APIKeyMiddleware import APIKeyMiddleware
 from dotenv import load_dotenv
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from werkzeug.wrappers import Response
 
 class APIKeyMiddleware:
