@@ -34,9 +34,29 @@
     h1 i {
         color: #007bff;
     }
+    .drop-zone {
+        border: 2px dashed #d0e1ff;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f8fbff;
+        margin: 20px auto;
+        width: 80%;
+        max-width: 500px;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    .drop-zone.dragover {
+        border-color: #007bff;
+        background-color: #e6f3ff;
+    }
+    .drop-zone p {
+        margin: 10px 0;
+        color: #005670;
+        font-size: 16px;
+    }
     input[type="file"] {
         display: block;
-        margin: 20px auto;
+        margin: 10px auto;
         padding: 12px;
         border: 2px solid #d0e1ff;
         border-radius: 8px;
@@ -51,15 +71,15 @@
     }
     .preview-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Tăng minmax để ảnh rộng hơn */
-        gap: 50px; /* Tăng gap từ 15px lên 25px để giãn khoảng cách */
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 50px;
         margin: 50px 0;
         justify-items: center;
     }
     .image-wrapper {
         position: relative;
-        width: 120px; /* Tăng từ 100px lên 120px */
-        height: 120px; /* Tăng từ 100px lên 120px */
+        width: 120px;
+        height: 120px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -170,15 +190,15 @@
         .container {
             padding: 15px;
         }
-        input[type="file"] {
+        .drop-zone, input[type="file"] {
             width: 90%;
         }
         .preview-container {
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Giảm minmax cho màn nhỏ */
-            gap: 20px; /* Giảm gap nhẹ cho màn nhỏ */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
         }
         .image-wrapper {
-            width: 100px; /* Giảm kích thước cho màn nhỏ */
+            width: 100px;
             height: 100px;
         }
         .image-number {
@@ -194,25 +214,55 @@
             padding: 3px;
         }
     }
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
         <h1><i class="fa-solid fa-brain"></i> Chẩn đoán bệnh não từ ảnh</h1>
-        <input type="file" id="imageInput" accept="image/*" multiple>
+        <div class="drop-zone" id="dropZone">
+            <p><i class="fa-solid fa-cloud-upload-alt"></i> Kéo và thả ảnh vào đây hoặc</p>
+            <input type="file" id="imageInput" accept="image/*" multiple>
+        </div>
         <div class="preview-container" id="previewContainer"></div>
         <button onclick="uploadImages()"><i class="fa-solid fa-diagnoses"></i> Chẩn đoán</button>
         <div id="result"></div>
     </div>
 
     <script>
-        document.getElementById('imageInput').addEventListener('change', async function(event) {
-            const previewContainer = document.getElementById('previewContainer');
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('previewContainer');
+
+        // Xử lý sự kiện kéo thả
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        // Xử lý sự kiện chọn file qua input
+        imageInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            handleFiles(files);
+        });
+
+        // Hàm xử lý file chung cho cả kéo thả và chọn file
+        async function handleFiles(files) {
             previewContainer.innerHTML = '';
-            const files = Array.from(event.target.files);
+            const fileList = Array.from(files);
 
             // Tạo danh sách promise để đọc file theo thứ tự
-            const promises = files.map((file, index) => {
+            const promises = fileList.map((file, index) => {
                 return new Promise((resolve) => {
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
@@ -232,7 +282,7 @@
             // Lọc các kết quả hợp lệ và hiển thị theo thứ tự
             results
                 .filter(result => result !== null)
-                .sort((a, b) => a.index - b.index) // Sắp xếp theo index
+                .sort((a, b) => a.index - b.index)
                 .forEach(({ src, index }) => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'image-wrapper';
@@ -253,7 +303,12 @@
                     wrapper.appendChild(resultDiv);
                     previewContainer.appendChild(wrapper);
                 });
-        });
+
+            // Cập nhật input file để hàm uploadImages sử dụng được
+            const dataTransfer = new DataTransfer();
+            fileList.forEach(file => dataTransfer.items.add(file));
+            imageInput.files = dataTransfer.files;
+        }
 
         async function login() {
             const response = await fetch("http://127.0.0.1:8000/api/login", {
@@ -304,7 +359,6 @@
                 console.log("Dữ liệu nhận được:", data);
                 let resultText = "<h3><i class='fa-solid fa-stethoscope'></i> Kết quả chẩn đoán</h3>";
 
-                // Cập nhật kết quả ngay dưới mỗi ảnh
                 if (data.results && Array.isArray(data.results)) {
                     const wrappers = document.querySelectorAll('.image-wrapper');
                     data.results.forEach((res, index) => {
