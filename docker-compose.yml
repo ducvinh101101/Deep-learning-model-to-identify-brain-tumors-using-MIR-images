@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  server1:
+    build:
+      context: ./docker_server_middle
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY=${API_KEY}
+      - TOKEN_KEY=${TOKEN_KEY}
+    depends_on:
+      - server2
+    networks:
+      - app-network
+
+  server2:
+    build:
+      context: ./docker_server_main
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - API_KEY=${API_KEY}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
