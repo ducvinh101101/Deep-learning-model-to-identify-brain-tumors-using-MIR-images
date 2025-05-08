@@ -64,7 +64,7 @@ def predict():
 
     # Đếm số lượng từng loại chẩn đoán
     for result in results:
-        if result['confidence'] > 0.5:  # Ngưỡng confidence
+        if result['confidence'] > 0.5:
             disease_count[result['diagnosis']] += 1
             if result['diagnosis'] != 'notumor':
                 if(result['diagnosis'] not in [d['disease'] for d in significant_diagnoses]):
@@ -92,7 +92,7 @@ def predict():
         }
 
     response_data = {"results": results, "summary": summary}
-    print("Response:", response_data)  # In dữ liệu để debug
+    print("Response:", response_data)
     return jsonify(response_data)
 
 if __name__ == '__main__':

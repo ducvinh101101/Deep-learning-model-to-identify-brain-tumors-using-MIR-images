@@ -54,6 +54,7 @@ def build_denoising_autoencoder():
 
 # Load dữ liệu ảnh cho AutoEncoder
 Train_dir = "Data/Training"
+Test_dir = "Data/Test"
 image_paths = []
 for subdir, _, files in os.walk(Train_dir):
     for file in files:
@@ -75,14 +76,7 @@ for layer in base_model.layers:
 train_datagen = ImageDataGenerator(rescale=1./255)
 test_datagen = ImageDataGenerator(rescale=1./255)
 train_generator = train_datagen.flow_from_directory(Train_dir, target_size=(128, 128), batch_size=64, class_mode='categorical')
-test_generator = test_datagen.flow_from_directory(
-    "Data/Testing",
-    target_size=(128, 128),
-    batch_size=64,
-    class_mode='categorical',
-    shuffle=False
-)
-
+test_generator = test_datagen.flow_from_directory(Test_dir, target_size=(128, 128), batch_size=64, class_mode='categorical', shuffle=False)
 
 # Xây dựng model kết hợp
 model = Sequential([
